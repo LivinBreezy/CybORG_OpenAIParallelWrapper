@@ -188,7 +188,7 @@ TOTAL STEP TIME: 218623800
 ```
 
 Although on an average case the timing appears to bounce between ~97000 and ~1950000 ns, occasionally it will take
-significantly longer, reaching as high as 40000000 ns (0.04 s) per `observation_change` function call. This is 412
+significantly longer, reaching as high as ~40000000 ns (~0.04 s) per `observation_change` function call. This is 412
 times longer than the fastest steps. This can increase a total step time by upwards of 37%.
 
 ## Improvements
