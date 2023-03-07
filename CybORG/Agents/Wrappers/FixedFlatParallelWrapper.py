@@ -32,16 +32,6 @@ class FixedFlatParallelWrapper(BaseWrapper):
         self.password_hash = {}
         self.file = {}
 
-    # def action_space_change(self, action_space: dict) -> dict:
-    #     action_space.pop('process')
-    #     action_space['session'] = {0: True}
-    #     action_space['username'] = {'pi': action_space['username']['pi'],
-    #                                 'vagrant': action_space['username']['vagrant']}
-    #     action_space['password'] = {'raspberry': action_space['password']['raspberry'],
-    #                                 'vagrant': action_space['password']['vagrant']}
-    #     action_space['port'] = {22: action_space['port'][22]}
-    #     return action_space
-
     def observation_change(self, agent, obs: dict) -> list:
         if'message' in obs:
             obs.pop('message')
@@ -54,7 +44,6 @@ class FixedFlatParallelWrapper(BaseWrapper):
 
         while len(numeric_obs) > self.MAX_HOSTS:
             numeric_obs.popitem()
-            # raise ValueError("Too many hosts in observation for fixed size")
 
         for key_name, host in numeric_obs.items():
             if key_name == 'success':
@@ -161,7 +150,6 @@ class FixedFlatParallelWrapper(BaseWrapper):
                     host["Processes"].append({})
                 while len(host["Processes"]) > self.MAX_PROCESSES:
                     host["Processes"].pop()
-                    # raise ValueError("Too many processes in observation for fixed size")
 
                 for proc_idx, process in enumerate(host['Processes']):
                     if "PID" in process:
@@ -301,7 +289,6 @@ class FixedFlatParallelWrapper(BaseWrapper):
                     host["Files"].append({})
                 while len(host["Files"]) > self.MAX_FILES:
                     host["Files"].pop()
-                    # raise ValueError("Too many files in observation for fixed size")
 
                 for file_idx, file in enumerate(host['Files']):
                     if "Path" in file:
@@ -419,7 +406,6 @@ class FixedFlatParallelWrapper(BaseWrapper):
                     host["Users"].append({})
                 while len(host["Users"]) > self.MAX_USERS:
                     host["Users"].pop()
-                    # raise ValueError("Too many users in observation for fixed size")
 
                 for user_idx, user in enumerate(host['Users']):
                     if "Username" in user:
@@ -474,7 +460,6 @@ class FixedFlatParallelWrapper(BaseWrapper):
                         user["Groups"].append({})
                     while len(user['Groups']) > self.MAX_GROUPS:
                         user['Groups'].pop()
-                        # raise ValueError("Too many groups in observation for fixed size")
                     for group_idx, group in enumerate(user["Groups"]):
                         if 'Builtin Group' in group:
                             if group["Builtin Group"] != -1:  # TODO test if this is ever not true
@@ -505,7 +490,6 @@ class FixedFlatParallelWrapper(BaseWrapper):
                     host["Sessions"].append({})
                 while len(host["Sessions"]) > self.MAX_SESSIONS:
                     host["Sessions"].pop()
-                    # raise ValueError("Too many sessions in observation for fixed size")
 
                 for session_idx, session in enumerate(host['Sessions']):
                     if "Username" in session:
@@ -547,7 +531,6 @@ class FixedFlatParallelWrapper(BaseWrapper):
                     host["Interface"].append({})
                 while len(host["Interface"]) > self.MAX_INTERFACES:
                     host["Interface"].pop()
-                    # raise ValueError("Too many interfaces in observation for fixed size")
 
                 if 'Interface' in host:
                     for interface_idx, interface in enumerate(host['Interface']):
@@ -580,7 +563,7 @@ class FixedFlatParallelWrapper(BaseWrapper):
         return self.env.get_attr(attribute)
 
     def get_observation(self, agent: str, change: bool = True):
-        obs = self.env.get_observation(agent) #self.get_attr('get_observation')(agent)
+        obs = self.env.get_observation(agent)
         if change:
             return self.observation_change(agent, obs)
         else:

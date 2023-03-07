@@ -113,7 +113,7 @@ class OpenAIGymParallelWrapper(Env, BaseWrapper):
         possible_actions = []
         temp = {}
         params = ['action']
-        # for action in action_space['action']:
+
         for i, action in enumerate(action_space['action']):
             if action not in self.action_signature:
                 self.action_signature[action] = inspect.signature(action).parameters
@@ -147,7 +147,6 @@ class OpenAIGymParallelWrapper(Env, BaseWrapper):
         Returns the observation space for every possible agent
         '''
         try:
-            #return {agent: self._observation_spaces for agent in self.possible_agents}
             return self._observation_spaces
         except AttributeError:
             raise AttributeError(
@@ -159,7 +158,6 @@ class OpenAIGymParallelWrapper(Env, BaseWrapper):
         Returns the action space for every possible agent
         '''
         try:
-            #return {agent: self._action_spaces for agent in self.possible_agents}
             return self._action_spaces
         except AttributeError:
             raise AttributeError(
