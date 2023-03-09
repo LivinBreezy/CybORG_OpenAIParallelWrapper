@@ -10,7 +10,6 @@ from datetime import datetime
 # this imports a submissions agents
 from submission import agents, wrap
 
-
 def run_evaluation(name, team, name_of_agent, max_eps, write_to_file=True):
 
     cyborg_version = CYBORG_VERSION
@@ -33,7 +32,7 @@ def run_evaluation(name, team, name_of_agent, max_eps, write_to_file=True):
     obs_log = []
     for i in range(max_eps):
         observations = wrapped_cyborg.reset()
-        action_spaces = wrapped_cyborg.action_spaces()
+        action_spaces = wrapped_cyborg.action_spaces
         r = []
         a = []
         o = []
@@ -73,10 +72,7 @@ def run_evaluation(name, team, name_of_agent, max_eps, write_to_file=True):
 
 
 if __name__ == "__main__":
-    # ask for a name
-    name = "tpg"
-    # ask for a team
+    name = "tpg_example"
     team = "Robert"
-    # ask for a name for the agent
-    technique = "Tangled Program Graphs"
+    technique = "tangled_program_graphs"
     run_evaluation(name, team, technique, 5)

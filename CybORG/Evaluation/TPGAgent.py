@@ -7,7 +7,7 @@ import pickle
 
 
 class TPGAgent(BaseAgent):
-    def __init__(self, name="blue_agent_0", np_random=None, path="tpg/team_file"):
+    def __init__(self, name="blue_agent_0", np_random=None, path="tpg/team3"):
         super().__init__(name, np_random)
 
         self.team = None

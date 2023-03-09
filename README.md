@@ -2,13 +2,29 @@
 
 This repository contains the current code for the  the Cage 3 OpenAI Gym Parallel wrapper.
 
+## Changelog
+
+09/03/2023: 
+	1. `OpenAIGymParallelWrapper.__init__(..)`: modified to store a dictionary of possible actions,
+	   with one set of possible actions for each possible agent.
+	2. `OpenAIGymParallelWrapper.reset(..)`: modified to re-create the dictionary of possible actions
+	   based on the new state of the simulation.
+	3. `OpenAIGymParallelWrapper.step(..)`: modified to convert each agent's discrete action into 
+	   one of the possible actions from their personal action list for the current simulation.
+	4. `evaluation.py`: reversed the `action_spaces` modification on `evaluation.py:35`. It seems
+	   that Python didn't like my decorators. It should be back to being compatible again.
+	5. Removed some erroneous commented code and unused imports.
+	
+07/03/2023: 
+	1. Initial release.
+
+## Motivation
+
 The CybORG Cage Challenge 3 OpenAIGymWrapper is currently designed to provide a flat 
 observation space and discrete action space in order to conform to the OpenAI Gym
 standard. However, one drawback of the implementation is that it must be initialized to
 handle a single drone at a time, which makes the environment very sparse. Currently,
 it produces an action space of 56 (for a single drone), with an observation space of 11,293.
-
-## Motivation
 
 Since we use TPG, and our algorithms have been designed to work with OpenAI Gym in the past,
 it seemed like a good place to start. For Cage Challenge 2, this appeared to be sufficient
@@ -42,11 +58,11 @@ in two parts in order to achieve the desired observation and action spaces:
    double wrapped) and provides the discrete action space conversion. This means the OpenAIGymWrapper
    uses its own action space and the FixedFlatWrapper observation space to provide to the agent.
    In its current implementation, it still uses the CybORG 2.0+ step function, which is marked
-   as a compatibility function for Cage Challenges 1 and 2.
+   as a compatibility/legacy function for Cage Challenges 1 and 2.
 
-Our new wrappers, *FixedFlatParallelWrapper* and *OpenAIGymParallelWrapper* are based on these 
-wrappers, with a combination of some updated features from the PettingZoo wrapper, which has been
-updated to include the parallel step. These wrappers are found in `CybORG/Agents/Wrappers`.
+The new wrappers, *FixedFlatParallelWrapper* and *OpenAIGymParallelWrapper* are based on the previously 
+discussed wrappers, with a combination of some updated features from the PettingZoo wrapper, 
+which has been updated to include the parallel step. These wrappers are found in `CybORG/Agents/Wrappers`.
 
 The FixedFlatParallelWrapper contains the following modifications:
 
@@ -60,7 +76,7 @@ process. Currently is not used with change-mode disabled.
 ### parallel_step(actions:dict, messages: dict)
 
 This function has been added as a compatibility step between environments. If it is necessary to call
-an underlying env.parallel_step(..), this can be used as a translation function.
+an underlying env.parallel_step(..), this can be used as an interface.
 
 The OpenAIGymParallelWrapper contains the following modifications:
 
@@ -68,12 +84,12 @@ The OpenAIGymParallelWrapper contains the following modifications:
 
 The OpenAIGymParallelWrapper constructor has been altered and moves away from storing single actions
 and single agents. Instead, it creates and maintains both the action space and observation space for 
-a collection of agents, rather than a single agent.
+a collection of agents.
 
 ### step(actions: dict)
 
 The new step function follows the same rules as the previous step function, except rather than converting
-a single action and storing it as a class member, it converts a dictionary of actions tied to agent->action
+a single action and storing it as a class member, it converts a dictionary of actions tied to agent->action_list
 pairs. Once the actions are converted, it calls the env.parallel_step(..) function on said actions and receives
 a series of "raw" observations (not yet changed by the FixedFlatParallelWrapper), along with the other 
 standard state variables. The function then converts each observation received into a flat observation space
@@ -89,7 +105,7 @@ function so it may handle a starting reward and observation across multiple agen
 ### Additional Functions
 
 Additional properties and functions were migrated from the PettingZoo wrapper in order to better support 
-the evaluation programs, which require functions such as `get_dones()` and `action_spaces()`.
+the evaluation programs, which require functions such as `get_dones()` and `get_rewards()`.
 
 ## Analysis
 
@@ -208,9 +224,8 @@ I believe there are several ways to improve performance, one of which is more im
 ## Evaluation
 
 Currently the OpenAIGymParallelWrapper works with the evaluation system, including the submission.py and evaluation.py
-files, although the evaluation.py file needs to have the first `a` append (for writing to a file) enabled with the second
-commented out. It's likely that this could be fixed with an `if` statement.
+files, although the evaluation.py file needs to have the first `a` append (for writing to a file, `evaluation.py:48`) 
+enabled with the second commented out (`evaluation.py:49`). It's likely that this could be fixed with an `if` statement.
 
-The line which attempts to retrieve `action_spaces` from `wrapped_cyborg` appears to be missing `()`, so they were added.
-
-An OpenAIGymParallelWrapper evaluation example is included in `CybORG/Agents/Evaluation` with a simple TPG team.
+An OpenAIGymParallelWrapper evaluation example is included in `CybORG/Agents/Evaluation` with some example TPG teams
+to show evaluation/submission compatibility. Three teams (`team1`, `team2, team3) are included in `CybORG/Agents/Evaluation/tpg`

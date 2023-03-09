@@ -1,7 +1,7 @@
 import inspect
 
 import numpy as np
-from gym import spaces, Env
+from gym import spaces
 from typing import Union, List, Optional, Tuple
 
 from prettytable import PrettyTable
@@ -11,18 +11,23 @@ from CybORG.Agents.Wrappers.BaseWrapper import BaseWrapper
 
 
 
-class OpenAIGymParallelWrapper(Env, BaseWrapper):
+class OpenAIGymParallelWrapper(BaseWrapper):
     def __init__(self, env: BaseWrapper):
         super().__init__(env)
 
         # Initialize the action signature dictionary.
         self.action_signature = {}
 
-        # Create a dictionary of action spaces for every drone in Discrete (Gym) format.
-        self._action_spaces = {agent: spaces.Discrete(self.get_action_space(agent)) for agent in self.possible_agents}
+        # Initialize the action-related dictionaries.
+        self.possible_actions = {}
+        self._action_spaces = {}
 
-        # Reset the environment so observation is fresh.
-        result = self.env.reset()
+        # Create a dictionary of action spaces for every drone in Discrete (Gym) format
+        # and ensure the possible_actions dictionary is properly populated.
+        for agent in self.possible_agents:
+            a_space = spaces.Discrete(self.get_action_space(agent))
+            self.possible_actions[agent] = self.last_possible_actions
+            self._action_spaces[agent] = a_space
     
         # Initialize the observation spaces dictionary.
         self._observation_spaces = {}
@@ -34,24 +39,21 @@ class OpenAIGymParallelWrapper(Env, BaseWrapper):
 
         # Initialize the done flags.
         self.dones = {agent: False for agent in self.possible_agents}
-        
-        # Set remaining necessary parameters.
-        self.reward_range = (float('-inf'), float('inf'))
-        self.metadata = {}
 
     def step(self, actions: dict = None):
         # Convert all agent actions from discrete to CybORG actions.
+        converted_actions = {}
         for agent, action in actions.items():
             if action is not None:
-                actions[agent] = self.possible_actions[action]
-        
-        # Run a parallel step with all of the agents' actions.        
-        raw_obs, rews, dones, infos = self.env.parallel_step(actions, messages={})
+                converted_actions[agent] = self.possible_actions[agent][action]
+       
+        # Run a parallel step with all of the agents' actions.
+        raw_obs, rews, dones, infos = self.env.parallel_step(converted_actions, messages={})
 
         # Convert every observation from CybORG to Flat.
         observations = {agent: np.array(self.env.observation_change(agent, agent_obs), dtype=np.float32)
                         for agent, agent_obs in raw_obs.items()}
-
+        
         # Save the dones in this object.
         self.dones.update(dones)
 
@@ -64,9 +66,9 @@ class OpenAIGymParallelWrapper(Env, BaseWrapper):
     def np_random(self):
         return self.env.get_attr('np_random')
 
-    def reset(self, *, seed: Optional[int] = None, return_info: bool = False, options: Optional[dict] = None):
-        # Perform a full simulation reset with a given seed value.
-        result = self.env.reset(seed)
+    def reset(self, seed: Optional[int] = None, return_info: bool = False, options: Optional[dict] = None):
+        # Perform a full simulation reset.
+        result = self.env.reset()
 
         # Reset the current rewards.
         self.rewards = {agent: 0.0 for agent in self.possible_agents}
@@ -74,7 +76,17 @@ class OpenAIGymParallelWrapper(Env, BaseWrapper):
         # Convert every observation from CybORG to Flat.
         observations = {agent: np.array(self.env.get_observation(agent), dtype=np.float32)
                         for agent in self.possible_agents}
-                    
+
+         # Re-initialize the action-related dictionaries.
+        self.possible_actions = {}
+        self._action_spaces = {}
+
+        # Re-create the discrete action space and possible_actions.
+        for agent in self.possible_agents:
+            a_space = spaces.Discrete(self.get_action_space(agent))
+            self.possible_actions[agent] = self.last_possible_actions
+            self._action_spaces[agent] = a_space
+
         if return_info:
             return observations, {}
         else:
@@ -113,7 +125,7 @@ class OpenAIGymParallelWrapper(Env, BaseWrapper):
         possible_actions = []
         temp = {}
         params = ['action']
-
+        # for action in action_space['action']:
         for i, action in enumerate(action_space['action']):
             if action not in self.action_signature:
                 self.action_signature[action] = inspect.signature(action).parameters
@@ -139,9 +151,10 @@ class OpenAIGymParallelWrapper(Env, BaseWrapper):
             for p_dict in param_list:
                 possible_actions.append(action(**p_dict))
 
-        self.possible_actions = possible_actions
+        self.last_possible_actions = possible_actions
         return len(possible_actions)
 
+    @property
     def observation_spaces(self):
         '''
         Returns the observation space for every possible agent
@@ -152,7 +165,7 @@ class OpenAIGymParallelWrapper(Env, BaseWrapper):
             raise AttributeError(
                 "The base environment does not have an `observation_spaces` dict attribute. Use the environments `observation_space` method instead"
             )
-
+    @property
     def action_spaces(self):
         '''
         Returns the action space for every possible agent
