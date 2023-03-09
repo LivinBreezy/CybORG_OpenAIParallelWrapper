@@ -4,7 +4,7 @@ This repository contains the current code for the  the Cage 3 OpenAI Gym Paralle
 
 ## Changelog
 
-09/03/2023: 
+**09/03/2023:**
 
 1. `OpenAIGymParallelWrapper.__init__(..)`: modified to store a dictionary of possible actions,
    with one set of possible actions for each possible agent.
@@ -16,7 +16,7 @@ This repository contains the current code for the  the Cage 3 OpenAI Gym Paralle
    that Python didn't like my decorators. It should be back to being compatible again.
 5. Removed some erroneous commented code and unused imports.
 	
-07/03/2023: 
+**07/03/2023:** 
 
 1. Initial release.
 
