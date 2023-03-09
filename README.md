@@ -5,18 +5,20 @@ This repository contains the current code for the  the Cage 3 OpenAI Gym Paralle
 ## Changelog
 
 09/03/2023: 
-	1. `OpenAIGymParallelWrapper.__init__(..)`: modified to store a dictionary of possible actions,
-	   with one set of possible actions for each possible agent.
-	2. `OpenAIGymParallelWrapper.reset(..)`: modified to re-create the dictionary of possible actions
-	   based on the new state of the simulation.
-	3. `OpenAIGymParallelWrapper.step(..)`: modified to convert each agent's discrete action into 
-	   one of the possible actions from their personal action list for the current simulation.
-	4. `evaluation.py`: reversed the `action_spaces` modification on `evaluation.py:35`. It seems
-	   that Python didn't like my decorators. It should be back to being compatible again.
-	5. Removed some erroneous commented code and unused imports.
+
+1. `OpenAIGymParallelWrapper.__init__(..)`: modified to store a dictionary of possible actions,
+   with one set of possible actions for each possible agent.
+2. `OpenAIGymParallelWrapper.reset(..)`: modified to re-create the dictionary of possible actions
+   based on the new state of the simulation.
+3. `OpenAIGymParallelWrapper.step(..)`: modified to convert each agent's discrete action into 
+   one of the possible actions from their personal action list for the current simulation.
+4. `evaluation.py`: reversed the `action_spaces` modification on `evaluation.py:35`. It seems
+   that Python didn't like my decorators. It should be back to being compatible again.
+5. Removed some erroneous commented code and unused imports.
 	
 07/03/2023: 
-	1. Initial release.
+
+1. Initial release.
 
 ## Motivation
 
@@ -228,4 +230,4 @@ files, although the evaluation.py file needs to have the first `a` append (for w
 enabled with the second commented out (`evaluation.py:49`). It's likely that this could be fixed with an `if` statement.
 
 An OpenAIGymParallelWrapper evaluation example is included in `CybORG/Agents/Evaluation` with some example TPG teams
-to show evaluation/submission compatibility. Three teams (`team1`, `team2, team3) are included in `CybORG/Agents/Evaluation/tpg`
+to show evaluation/submission compatibility. Three teams (`team1`, `team2`, `team3`) are included in `CybORG/Agents/Evaluation/tpg`
